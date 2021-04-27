@@ -62,7 +62,7 @@ export default Router()
         Object.keys(request.body)
             .filter(key => {
                 return Object.keys(doc._doc).includes(key)
-                && !["_id", "created_at", "__v"].includes(key);
+                    && !["_id", "created_at", "__v"].includes(key);
             }).forEach(key => {
                 doc[key] = request.body[key];
             });
@@ -85,4 +85,24 @@ export default Router()
                     }
                 })
         );
+    })
+    .delete("/:id", async (request, response) => {
+        response.send(
+            await Joke.findByIdAndDelete(request.params.id)
+                .then(doc => {
+                    if (!doc) {
+                        response.status(404);
+                        response.send({
+                            error: "NOT_FOUND",
+                            message: "No entity found at provided ID"
+                        });
+                    } else {
+                        response.status(202);
+                        return {
+                            success: true,
+                            deleted: doc
+                        }
+                    }
+                })
+        )
     })
